@@ -512,6 +512,16 @@ unsigned int Mesh_DCEL::getFaceId(const Triangle* face) const
 	return MESH_NULL_ID;
 }
 
+std::vector<std::vector<int>>& Mesh_DCEL::getFaceIndices()
+{
+	return this->face_indices;
+}
+
+const std::vector<std::vector<int>>& Mesh_DCEL::getFaceIndices() const
+{
+	return this->face_indices;
+}
+
 void Mesh_DCEL::checkAllFaces() const
 {
 	const unsigned int numFaces = this->getNumFaces();
@@ -633,13 +643,13 @@ void Mesh_DCEL::checkFace(unsigned int faceId) const
 
 unsigned int Mesh_DCEL::createVertex()
 {
-	this->vertices.push_back(Vertex());
+	this->vertices.push_back(Vertex(-1));
 	return this->vertices.size() - 1;
 }
 
 Vertex* Mesh_DCEL::createGetVertex()
 {
-	this->vertices.push_back(Vertex());
+	this->vertices.push_back(Vertex(-1));
 	return &this->vertices.back();
 }
 

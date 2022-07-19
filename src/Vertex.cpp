@@ -1,6 +1,7 @@
 #include "Vertex.h"
 
-Vertex::Vertex(Point3D p, halfEdge* ie):
+Vertex::Vertex(int idx, Point3D p, halfEdge* ie):
+	MeshData(idx),
 	incidentEdge(ie),
 	point(p)
 {

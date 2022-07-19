@@ -32,5 +32,5 @@
 *.app
 
 # Some folders
-vscode/
+.vscode/
 stl_models/

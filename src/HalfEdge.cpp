@@ -2,14 +2,17 @@
 #include "Triangle.h"
 #include "Vertex.h"
 
-halfEdge::halfEdge(Vertex* start) {
+halfEdge::halfEdge(int idx, Vertex* start) :
+	MeshData(idx)
+{
 
 	origin = start;
 	face = nullptr;
 	nextEdge = previousEdge = twin = nullptr;
 }
 
-halfEdge::halfEdge()
+halfEdge::halfEdge():
+	MeshData(-1)
 {
 	origin = NULL;
 	face = nullptr;

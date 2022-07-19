@@ -1,11 +1,12 @@
 ﻿#pragma once
+#include "MeshData.h"
 #include <iostream>
 
 
 class Triangle;
 class Vertex;
 
-class halfEdge
+class halfEdge: public MeshData
 {
 
 protected:
@@ -16,7 +17,7 @@ protected:
 
 public:
 
-	halfEdge(Vertex* start);
+	halfEdge(int idx, Vertex* start);
 
 	halfEdge();
 

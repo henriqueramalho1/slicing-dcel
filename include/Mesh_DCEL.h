@@ -17,6 +17,7 @@ protected:
 	std::vector<Vertex> vertices;
 	std::vector<halfEdge> edges;
 	std::vector<Triangle> faces;
+	std::vector<std::vector<int>> face_indices;
 
 	Point3D upperRightVertex;
 	Point3D bottomLeftVertex;
@@ -47,6 +48,10 @@ public:
 	Triangle* getFace(unsigned int faceId) const;
 
 	unsigned int getFaceId(const Triangle* face) const;
+
+	std::vector<std::vector<int>>& getFaceIndices();
+
+	const std::vector<std::vector<int>>& getFaceIndices() const;
 
 	void checkAllFaces() const;
 

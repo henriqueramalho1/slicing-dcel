@@ -3,6 +3,7 @@
 #include "MeshParserStrategy.h"
 #include "IncrementalSlicer.h"
 #include "SolidSlice.h"
+#include "MeshBuilder.h"
 #include <stdlib.h>
 #include <string.h>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -138,7 +139,9 @@ int main(int argc, char** argv)
     
     Mesh_DCEL mesh;
 
-    MeshParserStrategy parser(model, &mesh);
+    MeshBuilder builder(&mesh);
+
+    builder.build(model);
 
     std::vector<SolidSlice*> slices;
 
