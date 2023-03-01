@@ -4,7 +4,9 @@
 #include "IncrementalSlicer.h"
 #include "SolidSlice.h"
 #include "MeshBuilder.h"
+#include "Translate3D.h"
 #include <stdlib.h>
+#include <string.h>
 #include <string.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <CGAL/Cartesian.h>
@@ -136,20 +138,49 @@ int main(int argc, char** argv)
         std::cout << "Error: specify a positive slicing spacing in mm (thickness)!!!"<< std::endl;
         return -1;
     }
+
+    std::string path(model);
+    std::string lastFileName;
+    
+    size_t pos = path.find_last_of("/");
+    
+    if (pos != std::string::npos)
+      lastFileName.assign(path.begin() + pos + 1, path.end());
+    else
+      lastFileName = path;
     
     Mesh_DCEL mesh;
 
+    auto start = std::chrono::high_resolution_clock::now();
     MeshBuilder builder(&mesh);
-
     builder.build(model);
+    auto end= std::chrono::high_resolution_clock::now();
+	  std::chrono::duration<double, std::milli> float_ms1 = end - start;
+
+    Point3D p = mesh.getBottomLeftVertex();
+
+    if (p != Point3D(0, 0, 0))
+    {
+        Translate3D move(-p);
+        move.meshTransform(&mesh);
+    }
 
     std::vector<SolidSlice*> slices;
 
     IncrementalSlicer slicer;
 
+    start = std::chrono::high_resolution_clock::now();
     slicer.sliceMesh(mesh, thickness, slices);
+    end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> float_ms2 = end - start;
+    std::cout << "Time Building " << lastFileName << ": " << float_ms1.count() / 1000.f << std::endl;
+	  std::cout << "Time Slicing: " << float_ms2.count() / 1000.f << std::endl;
 
-    export_svg_3d(slices, slicer.getPlanes()->size());
+    std::cout << "Total time: " << float_ms1.count() / 1000.f + float_ms2.count() / 1000.f << "s" << std::endl;
+
+    std::cout << "Slice number: " << slices.size() << std::endl;
+
+    export_svg_3d(slices, slices.size());
 
     return 0;
 }

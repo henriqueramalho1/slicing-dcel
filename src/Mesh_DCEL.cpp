@@ -13,6 +13,24 @@ Mesh_DCEL::~Mesh_DCEL()
 	this->clear();
 }
 
+void Mesh_DCEL::roundVertices()
+{
+	double eps = 0.004;
+
+	for(int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].getPoint().set_x(xround(vertices[i].getPoint().get_x(), eps, 2, 0));
+		vertices[i].getPoint().set_y(xround(vertices[i].getPoint().get_y(), eps, 2, 0));
+		vertices[i].getPoint().set_z(xround(vertices[i].getPoint().get_z(), eps, 2, 0));
+	}
+}
+
+float Mesh_DCEL::xround (float x, double eps, int mod, int rem) {
+  	double y = round((double)x/(mod * eps));
+  	double z = (y * mod + rem) * eps;
+  	return (float)z;
+}
+
 std::list<int> Mesh_DCEL::getUnhandledTriangles() const
 {
 	return this->unhandledTriangles;
@@ -838,4 +856,11 @@ void Mesh_DCEL::clear() {
 	this->faces.clear();
 	this->unhandledTriangles.clear();
 	this->unhandledTrianglesCount = 0;
+}
+
+Point3D Mesh_DCEL::AABBSize()
+{
+	 return Point3D ( upperRightVertex.get_x() - bottomLeftVertex.get_x(), 
+                    upperRightVertex.get_y() - bottomLeftVertex.get_y(), 
+                    upperRightVertex.get_z() - bottomLeftVertex.get_z() );
 }

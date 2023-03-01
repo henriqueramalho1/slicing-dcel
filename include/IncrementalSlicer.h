@@ -22,6 +22,8 @@ public:
 
 	void definePlanes(float thickness, Mesh_DCEL& mesh);
 
+	float xround (float x, double eps, int mod, int rem);
+
 	void defineContourOrientation(SolidSlice* slice);
 
 	std::vector <float>* getPlanes() { return &this->planes; }

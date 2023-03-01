@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <iostream>
 #include "Triangle.h"
-#include "halfEdge.h"
+#include "HalfEdge.h"
 #include "EdgeIterator.h"
 #include "Vertex.h"
 
@@ -30,6 +30,10 @@ public:
 	Mesh_DCEL();
 
 	~Mesh_DCEL();
+
+	void roundVertices();
+
+	float xround (float x, double eps, int mod, int rem);
 
 	std::list<int> getUnhandledTriangles() const;
 
@@ -106,4 +110,6 @@ public:
 	Point3D getUpperRightVertex() const;
 
 	void setUpperBottomVertices(Point3D val);
+
+	Point3D AABBSize();
 };
