@@ -26,6 +26,7 @@ Triangle::Triangle(halfEdge* bound, Vertex* vertex1, Vertex* vertex2, Vertex* ve
 	zMax = -std::numeric_limits<float>::max();
 	boundary = bound;
 	state = false;
+	set_z_min_max();
 }
 
 Triangle::~Triangle(void)
@@ -86,6 +87,9 @@ void Triangle::set_v2 (const Point3D &point)
 
 void Triangle::set_z_min_max()
 {
+	zMin = std::numeric_limits<float>::max();
+	zMax = -std::numeric_limits<float>::max();
+
 	for (size_t i = 0; i < 3; ++i)
 	{
 		if (v[i]->get_z() < zMin)

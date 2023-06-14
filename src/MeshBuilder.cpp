@@ -14,17 +14,23 @@ MeshBuilder::~MeshBuilder()
 {
 }
 
-void MeshBuilder::build(std::string path)
+bool MeshBuilder::build(std::string path)
 {
 	if (CGAL::IO::read_polygon_mesh(path, mesh))
 	{
-		std::cout << "Malha aberta com sucesso" << std::endl;
-	} 
-	std::cout << "Edges Size: " << mesh.halfedges().size() << std::endl;
-	std::cout << "Faces Size: " << mesh.faces().size() << std::endl;
-	std::cout << "Vertices Size: " << mesh.vertices().size() << std::endl;
+		// std::cout << "Opened successfully" << std::endl;
+		// std::cout << "Edges Size: " << mesh.halfedges().size() << std::endl;
+		// std::cout << "Faces Size: " << mesh.faces().size() << std::endl;
+		// std::cout << "Vertices Size: " << mesh.vertices().size() << std::endl;
+		clone();
+	}
+	else
+	{
+		std::cout << "CGAL could not open: " << path << std::endl;
+		return false;
+	}
 
-	clone();
+	return true;
 }
 
 void MeshBuilder::clone()
@@ -89,8 +95,4 @@ void MeshBuilder::clone()
 	}
 
 	dcel->roundVertices();
-
-	std::cout << "Faces: " << dcel_faces.size() << std::endl;
-	std::cout << "Halfedges: " << dcel_halfedges.size() << std::endl;
-	std::cout << "Vertices: " << dcel_vertices.size() << std::endl;
 }

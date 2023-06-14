@@ -4,24 +4,35 @@
 #include <fstream>
 #include <math.h>
 #include <chrono>
-#include "halfEdge.h"
+#include "HalfEdge.h"
 #include "math_functions.h"
 
+IncrementalSlicer::IncrementalSlicer():
+	intersections(0)
+{
+
+}
+
+IncrementalSlicer::~IncrementalSlicer()
+{
+	
+}
 
 void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::vector<SolidSlice*> &sliceList)
 {
-	definePlanes(layer_thickness, mesh);
+	float delta = 0.0f;
+
+	definePlanes(layer_thickness, mesh, &delta);
 
 	std::vector<Triangle>& m = mesh.getFaces();
 
 	size_t nplanes = planes.size();
 
-	Mesh_Triangle_List_t** L = IncrementalSlicing_buildLists(planes, m, layer_thickness);
+	Mesh_Triangle_List_t** L = IncrementalSlicing_buildLists(planes, m, delta);
 
 	Mesh_Triangle_List_t* A = new Mesh_Triangle_List_t;
 
 	for (int p = 0; p < planes.size(); p++) {
-		std::cout << "Slice [" << p << "] computed." << std::endl;
 		/* Add triangles that start between {P[p-1]} and {P[p]}: */
 		A->Mesh_Triangle_List_union(L[p]);
 		/* Scan the active triangles: */
@@ -29,7 +40,7 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 
 		while (aux != NULL) {
 			Mesh_Triangle_Node_t* next = aux->get_next();
-			if (aux->get_t()->get_zmax() < planes[p] || aux->get_t()->get_zmin() > planes[p]) {
+			if (aux->get_t()->get_zmax() < planes[p]) {
 				/* Triangle is exhausted: */
 				A->Mesh_Triangle_List_remove(aux);
 			}
@@ -37,11 +48,9 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 
 		}
 
-		//std::cout << "\tRemoved exausted" << std::endl;
-
 		if (A->get_head() == NULL)
 		{
-			//std::cout << "\tRemoved all, going to next plane" << std::endl;
+			//std::cout << p <<" \tRemoved all, going to next plane" << std::endl;
 			continue;
 		}
 
@@ -60,16 +69,11 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 				Point3D v2 = aux->get_t()->get_v2();
 				Point3D v3 = aux->get_t()->get_v3();
 
-				/*std::cout << "face false, criando contorno, dados da face: " << std::endl << std::endl;
-				std::cout << "v1: " << "x: " << v1.get_x() << "// y: " << v1.get_y() << "// z: " << v1.get_z() << std::endl;
-				std::cout << "v2: " << "x: " << v2.get_x() << "// y: " << v2.get_y() << "// z: " << v2.get_z() << std::endl;
-				std::cout << "v3: " << "x: " << v3.get_x() << "// y: " << v3.get_y() << "// z: " << v3.get_z() << std::endl << std::endl;*/
 				SolidContour* contour = new SolidContour();
 
 				itr = aux->get_t()->get_boundary();
 
-				createCountours(itr, contour, p);
-				if(contour != nullptr)
+				if(createCountours(itr, contour, p))
 					slice->addContour(contour);//adiciona contorno na slice
 			}
 			aux = next;
@@ -77,18 +81,9 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 
 		slice->setZCoord(planes[p]);
 
-		for(int i = 0; i < slice->getContourSize(); i++)
-		{
-			if(slice->getContour(i)->getSize() <= 3)
-				for(int j = 0; j < slice->getContour(i)->getSize(); j++)
-				{
-					slice->getContour(i)->removePoint(j);
-				}
-				slice->removeContour(i);
-		}
-
 		defineContourOrientation(slice); //define a orientação dos contornos
 		sliceList.push_back(slice);
+		//std::cout << "Slice [" << sliceList.size() - 1 << "] computed --> Size: " << sliceList[sliceList.size() - 1]->getContourSize() << std::endl;
 
 		aux = A->get_head();
 		while (aux != NULL) {
@@ -116,16 +111,15 @@ Mesh_Triangle_List_t** IncrementalSlicer::IncrementalSlicing_buildLists(std::vec
 	if (delta > 0.0) {
 		for (int i = 0; i < n; ++i) {
 			Triangle* t = &mesh[i];
-			t->set_z_min_max();
 			int p;
 			if (t->get_zmin() < planes[0]) {
 				p = 0;
 			}
-			else if (t->get_zmin() > planes[k - 1]) {
+			else if (t->get_zmin() > planes[k-1]) {
 				p = k;
 			}
 			else {
-				p = floor((t->get_zmin() - planes[0]) / delta) + 1.f;
+				p = floor((t->get_zmin() - planes[0])/delta) + 1;
 			}
 			L[p]->Mesh_Triangle_List_insert(t);
 		}
@@ -160,7 +154,7 @@ Mesh_Triangle_List_t** IncrementalSlicer::IncrementalSlicing_buildLists(std::vec
 	return L;
 }
 
-void IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, int p)
+bool IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, int p)
 {
 	halfEdge* const start = itr;
 	halfEdge* next;
@@ -174,8 +168,7 @@ void IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, in
 		if(next == nullptr || prev == nullptr)
 		{
 			delete contour;
-			contour = nullptr;
-			return;
+			return false;
 		}
 
 		if ((next->getOrigin()->getPoint().get_z() < planes[p] && next->get_twinEdge()->getOrigin()->getPoint().get_z() > planes[p])
@@ -208,10 +201,11 @@ void IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, in
 		else
 		{
 			delete contour;
-			return;
+			return false;
 		}
 
 		itr = itr->get_twinEdge();
+		intersections++;
 
 		bool ending = false;
 		if(itr == start || itr->get_nextEdge() == start || itr->get_twinEdge() == start || itr->get_previousEdge() == start)
@@ -228,7 +222,7 @@ void IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, in
 
 	} while (itr != start);
 
-	return;
+	return true;
 }
 
 void IncrementalSlicer::computeIntersection(SolidContour* contour, halfEdge* edge, int p)
@@ -263,18 +257,43 @@ void IncrementalSlicer::computeIntersection(SolidContour* contour, halfEdge* edg
 	}
 }
 
-void IncrementalSlicer::definePlanes(float thickness, Mesh_DCEL& mesh)
+void IncrementalSlicer::definePlanes(float thickness, Mesh_DCEL& mesh, float* delta)
 {
-	planes.clear();
+	// planes.clear();
+
+	// float eps = 0.004;
+
+	// bool rounding = true; /*To avoid that the Z-coordinates of all planes are distinct from the Z-coordinates of all vertices.*/
+
+  	// /* Assuming the model as a 3D axis-aligned bounding-box: */
+  	// double model_zmax = std::max(mesh.getUpperRightVertex().get_z(), mesh.AABBSize().get_z());
+
+  	// double model_zmin = mesh.getBottomLeftVertex().get_z();
+
+	// double spacing = (rounding ? xround (thickness, eps, 2, 0) : thickness); /*Plane spacing even multiple of {eps}*/
+
+	// double P0 = xround (spacing/2.f, eps, 2, 1); /*First plane odd multiple of {eps}.*/
+
+	// int no_planes = 1 + (int)((model_zmax + spacing - P0)/spacing); /* Number of planes: */
+
+	// for (size_t i = 0; i < no_planes; i++) {
+	// /* Building the vector with the slice z coordinates: */
+	// 	float Pi = (float)(P0 + i * spacing);
+	// 	if ((Pi > model_zmin) && (Pi < model_zmax)) {
+	// 		planes.push_back ((float)(P0 + i * spacing));
+	// 	}
+	// }
+
+	// std::cout << "Model zmin = " << model_zmin << ", Model zmax = " << model_zmax << ", First plane Z = " << P0 << ", Number of planes = " << no_planes << std::endl;
 
 	float eps = 0.004;
 
 	bool rounding = true; /*To avoid that the Z-coordinates of all planes are distinct from the Z-coordinates of all vertices.*/
 
-  	/* Assuming the model as a 3D axis-aligned bounding-box: */
-  	double model_zmax = std::max(mesh.getUpperRightVertex().get_z(), mesh.AABBSize().get_z());
+	/* Assuming the model as a 3D axis-aligned bounding-box: */
+	double model_zmax = std::max(mesh.getUpperRightVertex().get_z(), mesh.AABBSize().get_z());
 
-  	double model_zmin = mesh.getBottomLeftVertex().get_z();
+	double model_zmin = mesh.getBottomLeftVertex().get_z();
 
 	double spacing = (rounding ? xround (thickness, eps, 2, 0) : thickness); /*Plane spacing even multiple of {eps}*/
 
@@ -282,15 +301,19 @@ void IncrementalSlicer::definePlanes(float thickness, Mesh_DCEL& mesh)
 
 	int no_planes = 1 + (int)((model_zmax + spacing - P0)/spacing); /* Number of planes: */
 
-	std::cout << "Model zmin = " << model_zmin << ", Model zmax = " << model_zmax << ", First plane Z = " << P0 << ", Number of planes = " << no_planes << std::endl;
+	// std::cout << "eps = " << eps << std::endl;
+	// std::cout << "max thickness = " << thickness << std::endl;
+	// std::cout << "rounded plane spacing spacing = " << spacing << std::endl;
+	// std::cout << "model zmin = " << model_zmin << ", model zmax = " << model_zmax << ", first plane Z = " << P0 << ", number of planes = " << no_planes << std::endl;
 
 	for (size_t i = 0; i < no_planes; i++) {
-	/* Building the vector with the slice z coordinates: */
+		/* Building the vector with the slice z coordinates: */
 		float Pi = (float)(P0 + i * spacing);
 		if ((Pi > model_zmin) && (Pi < model_zmax)) {
 			planes.push_back ((float)(P0 + i * spacing));
 		}
 	}
+	*delta = (float)(spacing);
 }
 
 float IncrementalSlicer::xround (float x, double eps, int mod, int rem) {

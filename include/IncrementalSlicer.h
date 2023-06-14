@@ -8,6 +8,11 @@ class IncrementalSlicer
 {
 public:
 
+	IncrementalSlicer();
+	~IncrementalSlicer();
+
+	int intersections;
+
 	std::vector<float> planes;
 
 	void sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::vector<SolidSlice*> &sliceList);
@@ -16,11 +21,11 @@ public:
 
 	virtual int findOrientation(int pos, SolidSlice* slice);
 
-	void createCountours(halfEdge* itr, SolidContour* countour, int p);
+	bool createCountours(halfEdge* itr, SolidContour* countour, int p);
 
 	void computeIntersection(SolidContour* contour, halfEdge* edge, int p);
 
-	void definePlanes(float thickness, Mesh_DCEL& mesh);
+	void definePlanes(float thickness, Mesh_DCEL& mesh, float* delta);
 
 	float xround (float x, double eps, int mod, int rem);
 

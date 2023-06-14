@@ -1,4 +1,4 @@
-#include "halfEdge.h"
+#include "HalfEdge.h"
 #include "Triangle.h"
 #include "Vertex.h"
 

@@ -23,7 +23,7 @@ private:
 public:
 	MeshBuilder(Mesh_DCEL* m);
 	~MeshBuilder();
-	void build(std::string path);
+	bool build(std::string path);
 	void clone();
 };
 

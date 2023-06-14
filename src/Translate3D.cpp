@@ -1,40 +1,25 @@
-/** ---------------------------------------------------------------------------------------------------------------------------------------- \
-	Classe: Translate3D
-	Descrição: Classe responsável pela translação.
-	Criação: ??/??/????									Última Modificação: ??/??/????
-\ ---------------------------------------------------------------------------------------------------------------------------------------- */
-
 #include "Translate3D.h"
 
-/** ------------------------------------------------------------------------------------------------- \
-	Método: Construtora da Classe
-	Descrição: Cria um novo objeto do tipo Transform3D.
-\ ------------------------------------------------------------------------------------------------- */
-Translate3D::Translate3D(void):Transform3D(){}
+Translate3D::Translate3D(void):Transform3D()
+{
 
-/** ------------------------------------------------------------------------------------------------- \
-	Método: Construtora da Classe
-	Descrição: Cria um novo objeto do tipo Transform3D.
-\ ------------------------------------------------------------------------------------------------- */
-Translate3D::Translate3D(Point3D transform):Transform3D(transform){}
+}
 
-/** ------------------------------------------------------------------------------------------------- \
-	Método: Construtora da Classe
-	Descrição: Cria um novo objeto do tipo Transform3D.
-\ ------------------------------------------------------------------------------------------------- */
-Translate3D::Translate3D(float parX, float parY, float parZ):Transform3D(parX, parY, parZ){}
+Translate3D::Translate3D(Point3D transform):Transform3D(transform)
+{
 
-/** ------------------------------------------------------------------------------------------------- \
-	Método: Destrutora da Classe
-	Descrição: Destrói o objeto do tipo Transform3D.
-\ ------------------------------------------------------------------------------------------------- */
-Translate3D::~Translate3D(void){}
+}
 
+Translate3D::Translate3D(float parX, float parY, float parZ):Transform3D(parX, parY, parZ)
+{
 
-/** ------------------------------------------------------------------------------------------------- \
-	Método: pointTransform
-	Descrição: .
-\ ------------------------------------------------------------------------------------------------- */
+}
+
+Translate3D::~Translate3D()
+{
+
+}
+
 Point3D* Translate3D::pointTransform(Point3D* point, float parX, float parY, float parZ)
 {
 	point->set_x(point->get_x()+parX);

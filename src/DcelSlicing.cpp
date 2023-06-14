@@ -1,10 +1,8 @@
 #include <iostream>
 #include "Mesh_DCEL.h"
-#include "MeshParserStrategy.h"
 #include "IncrementalSlicer.h"
 #include "SolidSlice.h"
 #include "MeshBuilder.h"
-#include "Translate3D.h"
 #include <stdlib.h>
 #include <string.h>
 #include <string.h>
@@ -40,7 +38,7 @@ void add_svg_information (FILE *file) {
 void export_svg (char filename[], const std::vector<std::vector<Point3D*>> &Polygons, int nslices, int nsegments, bool video, std::vector<bool> orientation) {
   glm::vec3 fromEuler (0.0f, 0.0f, 60.0f);
   glm::quat quaternion (DEG_TO_RAD(fromEuler));
-  glm::vec3 toEuler = glm::eulerAngles(quaternion);
+  glm::eulerAngles(quaternion);
   float angle = glm::angle(quaternion);
   glm::vec3 axis = glm::axis(quaternion);
   glm::mat4 View = glm::rotate(glm::mat4(1.0), angle, axis);
@@ -94,7 +92,7 @@ void export_svg_3d (std::vector<SolidSlice*> polygons, int nplanes)
   std::vector<std::vector<Point3D*>> P;
   std::vector<bool> orientation;
   for (int k = 0; k < nplanes; k++) {
-    const size_t ncontours = polygons[k]->getContourSize();
+    const int ncontours = polygons[k]->getContourSize();
     for (int c = 0; c < ncontours; c++) {
       std::vector<Point3D*> Pc = polygons[k]->getContour(c)->getPointVector();
       orientation.push_back(polygons[k]->getContour(c)->getOrientation());
@@ -153,17 +151,12 @@ int main(int argc, char** argv)
 
     auto start = std::chrono::high_resolution_clock::now();
     MeshBuilder builder(&mesh);
-    builder.build(model);
+    if(!builder.build(model))
+      return -1;
     auto end= std::chrono::high_resolution_clock::now();
 	  std::chrono::duration<double, std::milli> float_ms1 = end - start;
 
-    Point3D p = mesh.getBottomLeftVertex();
-
-    if (p != Point3D(0, 0, 0))
-    {
-        Translate3D move(-p);
-        move.meshTransform(&mesh);
-    }
+    std::cout << "Faces: " << mesh.getFaces().size() << std::endl;
 
     std::vector<SolidSlice*> slices;
 
@@ -179,6 +172,7 @@ int main(int argc, char** argv)
     std::cout << "Total time: " << float_ms1.count() / 1000.f + float_ms2.count() / 1000.f << "s" << std::endl;
 
     std::cout << "Slice number: " << slices.size() << std::endl;
+    std::cout << "Intersections: " << slicer.intersections << std::endl;
 
     export_svg_3d(slices, slices.size());
 
