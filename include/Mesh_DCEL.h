@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <list>
-#include <limits.h>
+#include <limits>
 #include <iostream>
 #include "Triangle.h"
 #include "HalfEdge.h"

@@ -19,8 +19,6 @@ public:
 
 	Mesh_Triangle_List_t** IncrementalSlicing_buildLists(std::vector<float>& planes, std::vector<Triangle>& m, float delta);
 
-	virtual int findOrientation(int pos, SolidSlice* slice);
-
 	bool createCountours(halfEdge* itr, SolidContour* countour, int p);
 
 	void computeIntersection(SolidContour* contour, halfEdge* edge, int p);
@@ -29,7 +27,11 @@ public:
 
 	float xround (float x, double eps, int mod, int rem);
 
-	void defineContourOrientation(SolidSlice* slice);
+	void orient(SolidSlice* slice);
+
+	void defineOrientation(int pos, SolidSlice* slice);
+
+	bool PIP(SolidContour* c, Point3D p);
 
 	std::vector <float>* getPlanes() { return &this->planes; }
 

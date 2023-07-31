@@ -7,7 +7,7 @@ SolidSlice::SolidSlice()
 
 SolidSlice::~SolidSlice()
 {
-	for(int i = 0;i<contourList.size();i++)
+	for(size_t i = 0; i<contourList.size();i++)
 	{
 		delete(contourList[i]);
 	}
@@ -19,15 +19,17 @@ void SolidSlice::addContour (SolidContour* contour)
 	contourList.push_back(contour);
 }
 
-void SolidSlice::removeContour(const int pos)
+void SolidSlice::removeContour(const int p)
 {
+	size_t pos = static_cast<size_t>(p);
 	if( pos < 0 || pos >= contourList.size())
 		return;
 	contourList.erase(contourList.begin() + pos);
 }
 
-SolidContour* SolidSlice::getContour(int position)
+SolidContour* SolidSlice::getContour(int p)
 {
+	size_t position = static_cast<size_t>(p);
 	if(position < contourList.size())
 		return contourList[position];
 	return NULL;

@@ -16,7 +16,7 @@ void Mesh_DCEL::roundVertices()
 {
 	double eps = 0.004;
 
-	for(int i = 0; i < vertices.size(); i++)
+	for(size_t i = 0; i < vertices.size(); i++)
 	{
 		vertices[i].getPoint().set_x(xround(vertices[i].getPoint().get_x(), eps, 2, 0));
 		vertices[i].getPoint().set_y(xround(vertices[i].getPoint().get_y(), eps, 2, 0));

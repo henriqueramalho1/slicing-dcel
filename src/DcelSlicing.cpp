@@ -87,6 +87,46 @@ void export_svg (char filename[], const std::vector<std::vector<Point3D*>> &Poly
   fclose(file);
 }
 
+void export_svg_2d (std::vector<SolidSlice*> polygons, int plane) 
+{
+  char filename[256];
+  sprintf(filename, "out_2d.svg");
+  printf("\n\nwriting output file: %s\n", filename);
+
+  FILE *file = fopen (filename, "w");
+  add_svg_information (file);
+
+  std::vector<std::vector<Point3D*>> P;
+  std::vector<int> orientation;
+  
+  const int ncontours = polygons[plane]->getContourSize();
+  for (int c = 0; c < ncontours; c++) {
+    std::vector<Point3D*> Pc = polygons[plane]->getContour(c)->getPointVector();
+    orientation.push_back(polygons[plane]->getContour(c)->getOrientation());
+    P.push_back(Pc);
+  }
+
+  for (int i = 0; i < polygons[plane]->getContourSize(); ++i) {
+    for (int index = 0; index < polygons[plane]->getContour(i)->getSize(); index++) {
+      const Point3D p0 = *polygons[plane]->getContour(i)->getPoint(index);
+      if (index < (polygons[plane]->getContour(i)->getSize() - 1)) {
+        const Point3D p1 = *polygons[plane]->getContour(i)->getPoint(index + 1);
+        if (orientation.at(i) == 0) {
+          fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"0.5\" stroke=\"rgb(%d,%d,%d)\"/>\n",
+          500 + p0.get_x(), 500 + p0.get_y(), 500 + p1.get_x(), 500 + p1.get_y(), 0 , 0, 0);
+        }
+        else {
+          fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"0.5\" stroke=\"rgb(%d,%d,%d)\"/>\n",
+          500 + p0.get_x(), 500 + p0.get_y(), 500 + p1.get_x(), 500 + p1.get_y(), 255, 0, 0); 
+        }
+      }
+    }
+  }
+
+  fprintf (file,"</svg>\n");
+  fclose (file);
+}
+
 void export_svg_3d (std::vector<SolidSlice*> polygons, int nplanes) 
 {
   std::vector<std::vector<Point3D*>> P;
@@ -166,6 +206,7 @@ int main(int argc, char** argv)
     slicer.sliceMesh(mesh, thickness, slices);
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> float_ms2 = end - start;
+
     std::cout << "Time Building " << lastFileName << ": " << float_ms1.count() / 1000.f << std::endl;
 	  std::cout << "Time Slicing: " << float_ms2.count() / 1000.f << std::endl;
 

@@ -7,8 +7,8 @@ class Vertex: public MeshData
 {
 private:
 
-	Point3D point;
 	halfEdge* incidentEdge;
+	Point3D point;
 
 public:
 	

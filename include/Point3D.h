@@ -1,13 +1,5 @@
-/* ---------------------------------------------------------------------------------------------------------------------------------------- \
-	Classe: Point3D
-	Descrição: Classe que representa um ponto no espaço cartesiano, com funções de acesso às variáveis.
-	Criação: ??/??/????									Última Modificação: 27/08/2014
-
-	Autor: Luiz Vasconcellos							Comentado inicialmente por: Guilherme Jacichen e Luiz Vasconcellos (Data: 25/08/15)
-\ ---------------------------------------------------------------------------------------------------------------------------------------- */
-
 #pragma once
-#include<functional>
+#include <functional>
 #include "HalfEdge.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -21,7 +13,7 @@ public:
 	
 	Point3D(const Point3D &point);
 
-	~Point3D(void);
+	virtual ~Point3D(void);
 
 	void transform (const glm::mat4 &mat) { 
       glm::vec4 v = glm::vec4(fX, fY, fZ, 1.0);
@@ -63,9 +55,9 @@ public:
 
 	virtual void operator= (const Point3D &point);
 
-	virtual bool operator== (const Point3D &point) const;
+	//virtual bool operator== (const Point3D &point) const;
 
-	virtual bool operator!= (const Point3D &point) const;
+	//virtual bool operator!= (const Point3D &point) const;
 
 	virtual bool operator> (const Point3D &point) const;
 

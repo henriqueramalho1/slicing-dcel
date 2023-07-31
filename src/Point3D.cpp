@@ -1,5 +1,5 @@
 #include "Point3D.h"
-#include "math_functions.h"
+//#include "math_functions.h"
 
 Point3D::Point3D(const float x, const float y, const float z): fX(x), fY(y), fZ(z)
 {
@@ -107,19 +107,19 @@ void Point3D::operator= (const Point3D &point)
 	set_point(point);
 }
 
-bool Point3D::operator== (const Point3D &point) const
-{
-	if(compf(fX,point.get_x()) && compf(fY,point.get_y())
-		&& compf(fZ,point.get_z()))
-		return true;
-	else return false; 
-	return true;
-}
+// bool Point3D::operator== (const Point3D &point) const
+// {
+// 	if(compf(fX,point.get_x()) && compf(fY,point.get_y())
+// 		&& compf(fZ,point.get_z()))
+// 		return true;
+// 	else return false; 
+// 	return true;
+// }
 
-bool Point3D::operator!=(const Point3D &point) const
-{
-	return !((*this) == point);
-}
+// bool Point3D::operator!=(const Point3D &point) const
+// {
+// 	return !((*this) == point);
+// }
 
 bool Point3D::operator< (const Point3D &point) const
 {

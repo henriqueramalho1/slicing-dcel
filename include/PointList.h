@@ -28,13 +28,13 @@ public:
 
 	void addPoint (Point3D *point);
 	
-	void insertPoint (Point3D* point, int position);
+	void insertPoint (Point3D* point, int p);
 
-	Point3D* getPoint (int position);
+	Point3D* getPoint (int p);
 	
-	Point3D* getPointNext (int position);
+	Point3D* getPointNext (int p);
 
-	Point3D* getPointPrev (int position);
+	Point3D* getPointPrev (int p);
 
 	Point3D* getCurrentPoint();
 	
@@ -58,7 +58,7 @@ public:
 
 	void setOrientation (orientation flag);
 	
-	void removePoint (const int pos);
+	void removePoint (const int p);
 
 	void reverseList();
 

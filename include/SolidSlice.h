@@ -12,9 +12,9 @@ public:
 
 	void addContour(SolidContour* contour);
 
-	void removeContour(const int pos);
+	void removeContour(const int p);
 
-	SolidContour* getContour(int position);
+	SolidContour* getContour(int p);
 
 	const int getContourSize();
 

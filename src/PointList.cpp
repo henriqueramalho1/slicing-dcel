@@ -9,7 +9,7 @@ PointList::PointList(listType _type) : type(_type), pointVector()
 
 PointList::~PointList()
 {
-	for (int i = 0; i < pointVector.size(); i++) {
+	for (size_t i = 0; i < pointVector.size(); i++) {
 		delete pointVector[i];
 	}
 	pointVector.clear();
@@ -21,8 +21,9 @@ void PointList::addPoint(Point3D* point)
 	pointVector.push_back(point);
 }
 
-void PointList::insertPoint(Point3D* point, int position)
+void PointList::insertPoint(Point3D* point, int p)
 {
+	size_t position = static_cast<size_t>(p);
 	if (position >= 0 && position <= pointVector.size())
 	{
 		auto it = pointVector.begin() + position;
@@ -31,8 +32,9 @@ void PointList::insertPoint(Point3D* point, int position)
 	else throw ("Index out of range!");
 }
 
-Point3D* PointList::getPoint(int position)
+Point3D* PointList::getPoint(int p)
 {
+	size_t position = static_cast<size_t>(p);
 
 	if (position >= 0 && position < pointVector.size())
 	{
@@ -53,15 +55,19 @@ Point3D* PointList::getPoint(int position)
 	else throw("Index out of range!");
 }
 
-Point3D* PointList::getPointNext(int position)
+Point3D* PointList::getPointNext(int p)
 {
+	size_t position = static_cast<size_t>(p);
+
 	if (position + 1 < pointVector.size())
 		return pointVector[position + 1];
 	return pointVector[0];
 }
 
-Point3D* PointList::getPointPrev(int position)
+Point3D* PointList::getPointPrev(int p)
 {
+	size_t position = static_cast<size_t>(p);
+
 	if (position == 0)
 		return pointVector[pointVector.size() - 1];
 	return pointVector[position - 1];
@@ -78,8 +84,10 @@ int PointList::getAdvancePointIndex()
 	return currentPoint;
 }
 
-void PointList::setPointIndex(int index)
+void PointList::setPointIndex(int i)
 {
+	size_t index = static_cast<size_t>(i);
+
 	if (index >= 0 && index < pointVector.size())
 		currentPoint = index;
 	else  throw("Index out of range!");
@@ -88,7 +96,7 @@ void PointList::setPointIndex(int index)
 PointList* PointList::advancePoint()
 {
 	currentPoint++;
-	if (currentPoint >= pointVector.size())
+	if (currentPoint >= int(pointVector.size()))
 		currentPoint = 0;
 
 	return this;
@@ -103,12 +111,12 @@ void PointList::returnPoint()
 
 bool PointList::isPointLast()
 {
-	return currentPoint == pointVector.size() - 1;
+	return currentPoint == int(pointVector.size()) - 1;
 }
 
 bool PointList::isPointLast(int index)
 {
-	return index == pointVector.size() - 1;
+	return index == int(pointVector.size()) - 1;
 }
 
 int PointList::getSize()
@@ -136,8 +144,9 @@ void PointList::setOrientation(orientation flag)
 	}
 }
 
-void PointList::removePoint(const int pos)
+void PointList::removePoint(const int p)
 {
+	size_t pos= static_cast<size_t>(p);
 	if (pos < 0 || pos >= pointVector.size())
 		return;
 

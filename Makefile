@@ -12,7 +12,7 @@ OBJ := $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 CC := g++
 
 # Flags
-CPPFLAGS := -Iinclude -O2
+CPPFLAGS := -Iinclude -O3
 CFLAGS   := -Wall
 
 .PHONY: all clean build

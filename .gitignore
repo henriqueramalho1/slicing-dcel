@@ -34,3 +34,4 @@
 # Some folders
 .vscode/
 stl_models/
+obj/

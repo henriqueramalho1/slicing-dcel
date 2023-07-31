@@ -12,7 +12,5 @@ public:
 
 	~SolidContour();
 
-	orientation determinateOrientation ();
-
 	std::vector<Point3D*> getPointVector(){return pointVector;}
 };
