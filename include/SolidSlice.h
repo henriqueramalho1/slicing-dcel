@@ -1,28 +1,20 @@
 ﻿#pragma once
 #include <vector>
-#include "Point3D.h"
 #include "SolidContour.h"
 
 class SolidSlice
 {
 public:
 	SolidSlice();
-
 	~SolidSlice();
 
-	void addContour(SolidContour* contour);
-
-	void removeContour(const int p);
-
-	SolidContour* getContour(int p);
-
-	const int getContourSize();
-
-	void setZCoord(float fZ);
-
+	SolidContour& get_contour(int i);
+	void add_contour(SolidContour contour);
+	void set_z(float fZ);
+	int contour_number();
 
 private:
 	
-	std::vector<SolidContour*> contourList;	
-	float zCoord;
+	std::vector<SolidContour> contour_list;	
+	float z;
 };

@@ -1,8 +1,8 @@
 #include "Mesh_DCEL.h"
 
 Mesh_DCEL::Mesh_DCEL():
-upperRightVertex(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()),
-bottomLeftVertex(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
+	upper_right_vertex(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()),
+	bottom_left_vertex(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max())
 {
 
 }
@@ -12,15 +12,15 @@ Mesh_DCEL::~Mesh_DCEL()
 	this->clear();
 }
 
-void Mesh_DCEL::roundVertices()
+void Mesh_DCEL::round_vertices()
 {
 	double eps = 0.004;
 
 	for(size_t i = 0; i < vertices.size(); i++)
 	{
-		vertices[i].getPoint().set_x(xround(vertices[i].getPoint().get_x(), eps, 2, 0));
-		vertices[i].getPoint().set_y(xround(vertices[i].getPoint().get_y(), eps, 2, 0));
-		vertices[i].getPoint().set_z(xround(vertices[i].getPoint().get_z(), eps, 2, 0));
+		vertices[i].get_point().set_x(xround(vertices[i].get_point().get_x(), eps, 2, 0));
+		vertices[i].get_point().set_y(xround(vertices[i].get_point().get_y(), eps, 2, 0));
+		vertices[i].get_point().set_z(xround(vertices[i].get_point().get_z(), eps, 2, 0));
 	}
 }
 
@@ -30,93 +30,68 @@ float Mesh_DCEL::xround (float x, double eps, int mod, int rem) {
   	return (float)z;
 }
 
-std::vector<Triangle>& Mesh_DCEL::getFaces()
-{
-	return this->faces;
-}
-	
-const std::vector<Triangle>& Mesh_DCEL::getFaces() const
+std::vector<Triangle>& Mesh_DCEL::get_faces()
 {
 	return this->faces;
 }
 
-
-std::vector<std::vector<int>>& Mesh_DCEL::getFaceIndices()
+std::vector<std::vector<int>>& Mesh_DCEL::get_face_indices()
 {
 	return this->face_indices;
 }
 
-const std::vector<std::vector<int>>& Mesh_DCEL::getFaceIndices() const
-{
-	return this->face_indices;
-}
-
-const std::vector<Vertex>& Mesh_DCEL::getVertices() const
+std::vector<Vertex>& Mesh_DCEL::get_vertices()
 {
 	return this->vertices;
 }
 
-std::vector<Vertex>& Mesh_DCEL::getVertices()
-{
-	return this->vertices;
-}
-
-std::vector<halfEdge>& Mesh_DCEL::getHalfEdges()
+std::vector<HalfEdge>& Mesh_DCEL::get_halfedges()
 {
 	return this->edges;
 }
 
-const std::vector<halfEdge>& Mesh_DCEL::getHalfEdges() const
+void Mesh_DCEL::set_bottom_left_vertex(const Point3D& p)
 {
-	return this->edges;
+	bottom_left_vertex = p;
 }
 
-std::vector<Triangle>& Mesh_DCEL::getMesh()
+void Mesh_DCEL::set_upper_right_vertex(const Point3D& p)
 {
-	return this->getFaces();
+	upper_right_vertex = p;
 }
 
-const std::vector<Triangle>& Mesh_DCEL::getMesh() const
+Point3D Mesh_DCEL::get_bottom_left_vertex() const
 {
-	return this->getFaces();
+	return bottom_left_vertex;
 }
 
-void Mesh_DCEL::setBottomLeftVertex(const Point3D& p)
+Point3D Mesh_DCEL::get_upper_right_vertex() const
 {
-	bottomLeftVertex = p;
+	return upper_right_vertex;
 }
 
-void Mesh_DCEL::setUpperRightVertex(const Point3D& p)
+void Mesh_DCEL::set_upper_bottom_vertices(Point3D val)
 {
-	upperRightVertex = p;
+	if (val.get_x() < bottom_left_vertex.get_x())
+		bottom_left_vertex.set_x(val.get_x());
+
+	if (val.get_y() < bottom_left_vertex.get_y())
+		bottom_left_vertex.set_y(val.get_y());
+
+	if (val.get_z() < bottom_left_vertex.get_z())
+		bottom_left_vertex.set_z(val.get_z());
+
+	if (val.get_x() > upper_right_vertex.get_x())
+		upper_right_vertex.set_x(val.get_x());
+
+	if (val.get_y() > upper_right_vertex.get_y())
+		upper_right_vertex.set_y(val.get_y());
+
+	if (val.get_z() > upper_right_vertex.get_z())
+		upper_right_vertex.set_z(val.get_z());
 }
 
-Point3D Mesh_DCEL::getBottomLeftVertex() const
-{
-	return bottomLeftVertex;
-}
-
-Point3D Mesh_DCEL::getUpperRightVertex() const
-{
-	return upperRightVertex;
-}
-
-void Mesh_DCEL::setUpperBottomVertices(Point3D val)
-{
-	if (val.get_x() < bottomLeftVertex.get_x()) bottomLeftVertex.set_x(val.get_x());
-
-	if (val.get_y() < bottomLeftVertex.get_y()) bottomLeftVertex.set_y(val.get_y());
-
-	if (val.get_z() < bottomLeftVertex.get_z()) bottomLeftVertex.set_z(val.get_z());
-
-	if (val.get_x() > upperRightVertex.get_x()) upperRightVertex.set_x(val.get_x());
-
-	if (val.get_y() > upperRightVertex.get_y()) upperRightVertex.set_y(val.get_y());
-
-	if (val.get_z() > upperRightVertex.get_z()) upperRightVertex.set_z(val.get_z());
-}
-
-void Mesh_DCEL::updateTriangles()
+void Mesh_DCEL::update_triangles()
 {
 	for(Triangle& t : faces)
 	{
@@ -130,9 +105,9 @@ void Mesh_DCEL::clear() {
 	this->faces.clear();
 }
 
-Point3D Mesh_DCEL::AABBSize()
+Point3D Mesh_DCEL::AABB_size()
 {
-	 return Point3D ( upperRightVertex.get_x() - bottomLeftVertex.get_x(), 
-                    upperRightVertex.get_y() - bottomLeftVertex.get_y(), 
-                    upperRightVertex.get_z() - bottomLeftVertex.get_z() );
+	 return Point3D (upper_right_vertex.get_x() - bottom_left_vertex.get_x(), 
+                    upper_right_vertex.get_y() - bottom_left_vertex.get_y(), 
+                    upper_right_vertex.get_z() - bottom_left_vertex.get_z());
 }

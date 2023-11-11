@@ -10,58 +10,32 @@
 
 class Mesh_DCEL
 {
-protected:
+private:
 	std::vector<Vertex> vertices;
-	std::vector<halfEdge> edges;
+	std::vector<HalfEdge> edges;
 	std::vector<Triangle> faces;
 	std::vector<std::vector<int>> face_indices;
 
-	Point3D upperRightVertex;
-	Point3D bottomLeftVertex;
+	Point3D upper_right_vertex;
+	Point3D bottom_left_vertex;
 
 public:
 
 	Mesh_DCEL();
-
 	~Mesh_DCEL();
 
-	void roundVertices();
-
 	float xround (float x, double eps, int mod, int rem);
-
-	std::vector<Triangle>& getFaces();
-	
-	const std::vector<Triangle>& getFaces() const;
-
-	std::vector<std::vector<int>>& getFaceIndices();
-
-	const std::vector<std::vector<int>>& getFaceIndices() const;
-
-	const std::vector<Vertex>& getVertices() const;
-
-	std::vector<Vertex>& getVertices();
-	
-	std::vector<halfEdge>& getHalfEdges();
-
-	const std::vector<halfEdge>& getHalfEdges() const;
-
-	std::vector<Triangle>& getMesh();
-
-	const std::vector<Triangle>& getMesh() const;
-
-	void setBottomLeftVertex(const Point3D& p);
-
-	void setUpperRightVertex(const Point3D& p);
-
-	Point3D getBottomLeftVertex() const;
-
-	Point3D getUpperRightVertex() const;
-
-	void setUpperBottomVertices(Point3D val);
-
-	Point3D AABBSize();
-
-	void updateTriangles();
-
+	std::vector<Triangle>& get_faces();
+	std::vector<std::vector<int>>& get_face_indices();
+	std::vector<Vertex>& get_vertices();
+	std::vector<HalfEdge>& get_halfedges();
+	void round_vertices();
+	void set_bottom_left_vertex(const Point3D& p);
+	void set_upper_right_vertex(const Point3D& p);
+	void set_upper_bottom_vertices(Point3D val);
+	void update_triangles();
 	void clear(); 
+	Point3D get_bottom_left_vertex() const;
+	Point3D get_upper_right_vertex() const;
+	Point3D AABB_size();
 };

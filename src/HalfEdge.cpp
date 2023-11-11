@@ -2,86 +2,69 @@
 #include "Triangle.h"
 #include "Vertex.h"
 
-halfEdge::halfEdge(int idx, Vertex* start) :
+HalfEdge::HalfEdge(int idx, Vertex* start) :
 	MeshData(idx)
 {
 
 	origin = start;
 	face = nullptr;
-	nextEdge = previousEdge = twin = nullptr;
+	next_edge = previous_edge = twin_edge = nullptr;
 }
 
-halfEdge::halfEdge():
-	MeshData(-1)
+HalfEdge::~HalfEdge()
 {
-	origin = NULL;
-	face = nullptr;
-	nextEdge = previousEdge = twin = nullptr;
+
 }
 
-halfEdge::~halfEdge() {};
-
-Vertex* halfEdge::get_startVertex() const
-{
-	return this->origin;
-}
-
-
-Triangle* halfEdge::get_Face() const
+Triangle* HalfEdge::get_face() const
 {
 	return this->face;
 }
 
-halfEdge* halfEdge::get_nextEdge() const
+HalfEdge* HalfEdge::get_next_edge() const
 {
-	return this->nextEdge;
+	return this->next_edge;
 }
 
-halfEdge* halfEdge::get_previousEdge() const
+HalfEdge* HalfEdge::get_previous_edge() const
 {
-	return this->previousEdge;
+	return this->previous_edge;
 }
 
-halfEdge* halfEdge::get_twinEdge() const
+HalfEdge* HalfEdge::get_twin_edge() const
 {
-	return this->twin;
+	return this->twin_edge;
 }
 
-Vertex* halfEdge::getOrigin() const
+Vertex* HalfEdge::get_origin() const
 {
 	return this->origin;
 }
 
-void halfEdge::set_startVertex(Vertex* point)
-{
-	origin = point;
-}
-
-
-void halfEdge::set_Face(Triangle* face)
+void HalfEdge::set_face(Triangle* face)
 {
 	this->face = face;
 }
 
-void halfEdge::set_nextEdge(halfEdge* edge)
+void HalfEdge::set_next_edge(HalfEdge* edge)
 {
-	this->nextEdge = edge;
-	edge->previousEdge = this;
+	this->next_edge = edge;
+	edge->previous_edge = this;
 }
 
-void halfEdge::set_previousEdge(halfEdge* edge)
+void HalfEdge::set_previous_edge(HalfEdge* edge)
 {
-	previousEdge = edge;
-	edge->nextEdge = this;
+	previous_edge = edge;
+	edge->next_edge = this;
 }
 
-void halfEdge::set_twinEdge(halfEdge* edge)
+void HalfEdge::set_twin_edge(HalfEdge* edge)
 {
-	this->twin = edge;
-	edge->twin = this;
+	this->twin_edge = edge;
+	edge->twin_edge = this;
 }
 
-void halfEdge::setOrigin(Vertex* o)
+void HalfEdge::set_origin(Vertex* o)
 {
 	origin = o;
 }

@@ -14,15 +14,15 @@ IncrementalSlicer::~IncrementalSlicer()
 	
 }
 
-void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::vector<SolidSlice*> &sliceList)
+void IncrementalSlicer::slice_mesh(Mesh_DCEL& mesh, float layer_thickness, std::vector<SolidSlice> &sliceList)
 {
 	float delta = 0.0f;
 
-	definePlanes(layer_thickness, mesh, &delta);
+	define_planes(layer_thickness, mesh, &delta);
 
-	std::vector<Triangle>& m = mesh.getFaces();
+	std::vector<Triangle>& m = mesh.get_faces();
 
-	Mesh_Triangle_List_t** L = IncrementalSlicing_buildLists(planes, m, delta);
+	Mesh_Triangle_List_t** L = build_buckets(planes, m, delta);
 
 	Mesh_Triangle_List_t* A = new Mesh_Triangle_List_t;
 
@@ -48,9 +48,9 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 			continue;
 		}
 
-		halfEdge* itr = A->get_head()->get_t()->get_boundary();
+		HalfEdge* itr = A->get_head()->get_t()->get_boundary();
 
-		SolidSlice* slice = new SolidSlice();
+		SolidSlice slice;
 
 		aux = A->get_head();
 
@@ -61,18 +61,18 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 
 			if (aux->get_t()->get_state() == false) {
 
-				SolidContour* contour = new SolidContour();
+				SolidContour contour;
 
 				itr = aux->get_t()->get_boundary();
 
-				if(createCountours(itr, contour, p))
-					slice->addContour(contour);
+				if(create_countours(itr, &contour, p))
+					slice.add_contour(contour);
 			}
 			aux = next;
 		} while (aux != NULL);
 
-		slice->setZCoord(planes[p]);
-		orient(slice);
+		slice.set_z(planes[p]);
+		orient(&slice);
 		sliceList.push_back(slice);
 
 		/*Reset the flag from visited triangles*/
@@ -88,7 +88,7 @@ void IncrementalSlicer::sliceMesh(Mesh_DCEL& mesh, float layer_thickness, std::v
 }
 
 
-Mesh_Triangle_List_t** IncrementalSlicer::IncrementalSlicing_buildLists(std::vector<float>& planes, std::vector<Triangle>& mesh, float delta)
+Mesh_Triangle_List_t** IncrementalSlicer::build_buckets(std::vector<float>& planes, std::vector<Triangle>& mesh, float delta)
 {
 	size_t k = planes.size();
 	Mesh_Triangle_List_t** L = (Mesh_Triangle_List_t**)malloc((k + 1) * sizeof(Mesh_Triangle_List_t*));
@@ -145,45 +145,44 @@ Mesh_Triangle_List_t** IncrementalSlicer::IncrementalSlicing_buildLists(std::vec
 	return L;
 }
 
-bool IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, int p)
+bool IncrementalSlicer::create_countours(HalfEdge* itr, SolidContour* contour, int p)
 {
-	halfEdge* const start = itr;
-	halfEdge* next;
-	halfEdge* prev;
+	HalfEdge* const start = itr;
+	HalfEdge* next;
+	HalfEdge* prev;
 
 	do
 	{
-		next = itr->get_nextEdge();
-		prev = itr->get_previousEdge();
+		next = itr->get_next_edge();
+		prev = itr->get_previous_edge();
 
 		if(next == nullptr || prev == nullptr)
 		{
-			delete contour;
 			return false;
 		}
 
-		if ((next->getOrigin()->getPoint().get_z() < planes[p] && next->get_twinEdge()->getOrigin()->getPoint().get_z() > planes[p])
+		if ((next->get_origin()->get_point().get_z() < planes[p] && next->get_twin_edge()->get_origin()->get_point().get_z() > planes[p])
 			||
-			(next->getOrigin()->getPoint().get_z() > planes[p] && next->get_twinEdge()->getOrigin()->getPoint().get_z() < planes[p]))
+			(next->get_origin()->get_point().get_z() > planes[p] && next->get_twin_edge()->get_origin()->get_point().get_z() < planes[p]))
 		{
-			computeIntersection(contour, next, p);
+			compute_intersection(contour, next, p);
 
-			if (itr->get_Face() != NULL)
+			if (itr->get_face() != NULL)
 			{
-				itr->get_Face()->set();
+				itr->get_face()->set();
 			}
 
 			itr = next;
 		}
-		else if ((prev->getOrigin()->getPoint().get_z() < planes[p] && prev->get_twinEdge()->getOrigin()->getPoint().get_z() > planes[p])
+		else if ((prev->get_origin()->get_point().get_z() < planes[p] && prev->get_twin_edge()->get_origin()->get_point().get_z() > planes[p])
 			||
-			(prev->getOrigin()->getPoint().get_z() > planes[p] && prev->get_twinEdge()->getOrigin()->getPoint().get_z() < planes[p]))
+			(prev->get_origin()->get_point().get_z() > planes[p] && prev->get_twin_edge()->get_origin()->get_point().get_z() < planes[p]))
 		{
-			computeIntersection(contour, prev, p);
+			compute_intersection(contour, prev, p);
 
-			if (itr->get_Face() != NULL)
+			if (itr->get_face() != NULL)
 			{
-				itr->get_Face()->set();
+				itr->get_face()->set();
 			}
 
 			itr = prev;
@@ -191,15 +190,14 @@ bool IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, in
 		}
 		else
 		{
-			delete contour;
 			return false;
 		}
 
-		itr = itr->get_twinEdge();
+		itr = itr->get_twin_edge();
 		intersections++;
 
 		bool ending = false;
-		if(itr == start || itr->get_nextEdge() == start || itr->get_twinEdge() == start || itr->get_previousEdge() == start)
+		if(itr == start || itr->get_next_edge() == start || itr->get_twin_edge() == start || itr->get_previous_edge() == start)
 		{
 			itr = start;
 			ending = true;
@@ -207,8 +205,8 @@ bool IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, in
 
 		if(ending)
 		{
-			Point3D* initPoint = new Point3D(*contour->getPointVector()[0]);
-			contour->addPoint(initPoint);
+			Point3D init_point(contour->get_points()[0]);
+			contour->add_point(init_point);
 		}
 
 	} while (itr != start);
@@ -216,10 +214,10 @@ bool IncrementalSlicer::createCountours(halfEdge* itr, SolidContour* contour, in
 	return true;
 }
 
-void IncrementalSlicer::computeIntersection(SolidContour* contour, halfEdge* edge, int p)
+void IncrementalSlicer::compute_intersection(SolidContour* contour, HalfEdge* edge, int p)
 {
-	float topVertice[3] = { edge->getOrigin()->getPoint().get_x() , edge->getOrigin()->getPoint().get_y(), edge->getOrigin()->getPoint().get_z() };
-	float bottomVertice[3] = { edge->get_twinEdge()->getOrigin()->getPoint().get_x() , edge->get_twinEdge()->getOrigin()->getPoint().get_y(), edge->get_twinEdge()->getOrigin()->getPoint().get_z() };
+	float topVertice[3] = { edge->get_origin()->get_point().get_x() , edge->get_origin()->get_point().get_y(), edge->get_origin()->get_point().get_z() };
+	float bottomVertice[3] = { edge->get_twin_edge()->get_origin()->get_point().get_x() , edge->get_twin_edge()->get_origin()->get_point().get_y(), edge->get_twin_edge()->get_origin()->get_point().get_z() };
 
 	float vdirector[3];
 
@@ -238,8 +236,8 @@ void IncrementalSlicer::computeIntersection(SolidContour* contour, halfEdge* edg
 		xintersection = bottomVertice[0] + lambda * vdirector[0];
 		yintersection = bottomVertice[1] + lambda * vdirector[1];
 
-		Point3D* point = new Point3D(xintersection, yintersection, zintersection);
-		contour->addPoint(point);
+		Point3D point(xintersection, yintersection, zintersection);
+		contour->add_point(point);
 	}
 	else
 	{
@@ -248,16 +246,16 @@ void IncrementalSlicer::computeIntersection(SolidContour* contour, halfEdge* edg
 	}
 }
 
-void IncrementalSlicer::definePlanes(float thickness, Mesh_DCEL& mesh, float* delta)
+void IncrementalSlicer::define_planes(float thickness, Mesh_DCEL& mesh, float* delta)
 {
 	float eps = 0.004;
 
 	bool rounding = true; /*To avoid that the Z-coordinates of all planes are distinct from the Z-coordinates of all vertices.*/
 
 	/* Assuming the model as a 3D axis-aligned bounding-box: */
-	double model_zmax = std::max(mesh.getUpperRightVertex().get_z(), mesh.AABBSize().get_z());
+	double model_zmax = std::max(mesh.get_upper_right_vertex().get_z(), mesh.AABB_size().get_z());
 
-	double model_zmin = mesh.getBottomLeftVertex().get_z();
+	double model_zmin = mesh.get_bottom_left_vertex().get_z();
 
 	double spacing = (rounding ? xround (thickness, eps, 2, 0) : thickness); /*Plane spacing even multiple of {eps}*/
 
@@ -290,42 +288,42 @@ float IncrementalSlicer::xround (float x, double eps, int mod, int rem) {
 
 void IncrementalSlicer::orient(SolidSlice* slice)
 {
-	for(int i = 0; i < slice->getContourSize(); i++)
+	for(int i = 0; i < slice->contour_number(); i++)
 	{
-		defineOrientation(i, slice);
+		define_orientation(i, slice);
 	}
 
-	for(int i = 0; i < slice->getContourSize(); i++)
+	for(int i = 0; i < slice->contour_number(); i++)
 	{
-		if(slice->getContour(i)->getOrientation() == ORIENTATION::CLOCKWISE)
-			slice->getContour(i)->reverseList();
+		if(slice->get_contour(i).get_orientation() == ORIENTATION::CW)
+			slice->get_contour(i).reverse_point_list();
 	}
 }
 
-void IncrementalSlicer::defineOrientation(int pos, SolidSlice* slice)
+void IncrementalSlicer::define_orientation(int pos, SolidSlice* slice)
 {
 	int insideContour = 0;
 
-	for(int i = 0; i < slice->getContourSize(); i++)
+	for(int i = 0; i < slice->contour_number(); i++)
 	{
 		if (i == pos)
 			continue;
 		
-		if(PIP(slice->getContour(i), *slice->getContour(pos)->getPoint(0)))
+		if(PIP(slice->get_contour(i), slice->get_contour(pos).get_point(0)))
 			insideContour++;
 	}
 
-	slice->getContour(pos)->setOrientation(insideContour % 2 == 1 ? ORIENTATION::CLOCKWISE : ORIENTATION::COUNTERCLOCKWISE);
+	slice->get_contour(pos).set_orientation(insideContour % 2 == 1 ? ORIENTATION::CW : ORIENTATION::CCW);
 }
 
-bool IncrementalSlicer::PIP(SolidContour* c, Point3D p)
+bool IncrementalSlicer::PIP(SolidContour c, Point3D p)
 {
 	int intersectionsN = 0;
-    int n = c->getSize();
+    int n = c.get_size();
 
     for (int i = 0; i < n; i++) {
-        const Point3D p1 = *c->getPoint(i);
-        const Point3D p2 = *c->getPoint((i + 1) % n);
+        const Point3D p1 = c.get_point(i);
+        const Point3D p2 = c.get_point((i + 1) % n);
 
         if ((p.get_y() > p1.get_y()) != (p.get_y() > p2.get_y())) {
             double intersection_x = (p.get_y() - p1.get_y()) * (p2.get_x() - p1.get_x()) / (p2.get_y() - p1.get_y()) + p1.get_x();

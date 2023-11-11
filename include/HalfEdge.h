@@ -2,52 +2,31 @@
 #include "MeshData.h"
 #include <iostream>
 
-
 class Triangle;
 class Vertex;
 
-class halfEdge: public MeshData
+class HalfEdge: public MeshData
 {
 
 protected:
 
 	Vertex* origin;
 	Triangle* face;
-	halfEdge* nextEdge, * previousEdge, * twin;
+	HalfEdge* next_edge, * previous_edge, * twin_edge;
 
 public:
 
-	halfEdge(int idx, Vertex* start);
+	HalfEdge(int idx, Vertex* start);
+	~HalfEdge();
 
-	halfEdge();
-
-	~halfEdge();
-
-	//retorna o vertice de origem
-	Vertex* get_startVertex() const;
-	//retorna a face 
-	Triangle* get_Face() const;
-	//retorna a pr�xima aresta 
-	halfEdge* get_nextEdge() const;
-	//retorna a aresta anterior
-	halfEdge* get_previousEdge() const;
-	//retorna seu edge gemeo
-	halfEdge* get_twinEdge() const;
-	//retorna sua origem
-	Vertex* getOrigin() const;
-
-
-	//modifica a origem
-	void set_startVertex(Vertex* point);
-	//modifica a face 
-	void set_Face(Triangle* face);
-	//modifica a pr�xima aresta 
-	void set_nextEdge(halfEdge* edge);
-	//modifica a aresta anterior 
-	void set_previousEdge(halfEdge* edge);
-	//modifica o gemeo
-	void set_twinEdge(halfEdge* edge);
-	//seta a origem
-	void setOrigin(Vertex* o);
-
+	Triangle* get_face() const;
+	HalfEdge* get_next_edge() const;
+	HalfEdge* get_previous_edge() const;
+	HalfEdge* get_twin_edge() const;
+	Vertex* get_origin() const;
+	void set_face(Triangle* face);
+	void set_next_edge(HalfEdge* edge);
+	void set_previous_edge(HalfEdge* edge);
+	void set_twin_edge(HalfEdge* edge);
+	void set_origin(Vertex* o);
 };

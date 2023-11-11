@@ -1,46 +1,33 @@
 #include "SolidSlice.h"
 
-SolidSlice::SolidSlice()
+SolidSlice::SolidSlice():
+	z(0.f)
 {
-	zCoord = 0.f;
+
 }
 
 SolidSlice::~SolidSlice()
 {
-	for(size_t i = 0; i<contourList.size();i++)
-	{
-		delete(contourList[i]);
-	}
-	contourList.clear();
+	contour_list.clear();
+	contour_list.shrink_to_fit();
 }
 
-void SolidSlice::addContour (SolidContour* contour)
+void SolidSlice::add_contour(SolidContour contour)
 {
-	contourList.push_back(contour);
+	contour_list.push_back(contour);
 }
 
-void SolidSlice::removeContour(const int p)
+SolidContour& SolidSlice::get_contour(int i)
 {
-	size_t pos = static_cast<size_t>(p);
-	if( pos < 0 || pos >= contourList.size())
-		return;
-	contourList.erase(contourList.begin() + pos);
+	return contour_list[i];
 }
 
-SolidContour* SolidSlice::getContour(int p)
+int SolidSlice::contour_number()
 {
-	size_t position = static_cast<size_t>(p);
-	if(position < contourList.size())
-		return contourList[position];
-	return NULL;
+	return contour_list.size();
 }
 
-const int SolidSlice::getContourSize ()
+void SolidSlice::set_z(float fZ)
 {
-	return contourList.size();
-}
-
-void SolidSlice::setZCoord(float fZ)
-{
-	zCoord = fZ;
+	z = fZ;
 }

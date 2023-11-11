@@ -7,16 +7,12 @@ class Vertex: public MeshData
 {
 private:
 
-	halfEdge* incidentEdge;
 	Point3D point;
 
 public:
 	
-	Vertex(int idx, Point3D p = Point3D(), halfEdge* ie = nullptr);
+	Vertex(int idx, Point3D p);
 	~Vertex();
-	void setPoint(Point3D p);
-	Point3D& getPoint();
-	void setIncidentEdge(halfEdge* edge);
-	halfEdge* getIncidentEdge() const;
+	Point3D get_point();
 };
 

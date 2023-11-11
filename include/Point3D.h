@@ -9,11 +9,10 @@
 class Point3D
 {
 public:
-	Point3D(const float x  = 0.0f, const float y = 0.0f, const float z = 0.0f);
-	
-	Point3D(const Point3D &point);
 
-	virtual ~Point3D(void);
+	Point3D(const float x  = 0.0f, const float y = 0.0f, const float z = 0.0f);
+	Point3D(const Point3D &point);
+	~Point3D();
 
 	void transform (const glm::mat4 &mat) { 
       glm::vec4 v = glm::vec4(fX, fY, fZ, 1.0);
@@ -22,66 +21,16 @@ public:
     }
 
 	float get_x() const;
-
 	float get_y() const;
-	
 	float get_z() const;
-
-	Point3D* get_point () const;
-
 	void set_x (const float x);
-
 	void set_y (const float y);
-
 	void set_z (const float z);
-
 	void set_point(const Point3D &point);
-
-	bool is_z_bigger (const Point3D &point) const;
-
-	bool is_z_smaller (const Point3D &point) const;
-
-	float distance (Point3D p);
-
-	Point3D operator+ (const Point3D &point) const;
 	
-	Point3D operator- (const Point3D &point) const;
-	
-	Point3D operator- () const;
+private:
 
-	Point3D operator* (const float &num) const;
-
-	Point3D operator/ (const float &num) const;
-
-	virtual void operator= (const Point3D &point);
-
-	//virtual bool operator== (const Point3D &point) const;
-
-	//virtual bool operator!= (const Point3D &point) const;
-
-	virtual bool operator> (const Point3D &point) const;
-
-	virtual bool operator< (const Point3D &point) const;
-	
-protected:
-	float fX;/*!< x coordinate*/
-	float fY;/*!< y coordinate*/
-	float fZ;/*!< z coordinate*/
+	float fX;
+	float fY;
+	float fZ;
 };
-	
-
-namespace std {
-
-/*!
- * Specialisation of std::hash to hash Point3.
- */
-template<> 
-struct hash<Point3D> {
-	/*!
-	 * Calls the hash struct, which returns the hash.
-	 */
-	std::size_t operator ()(const Point3D& point) const;
-};
-
-
-}

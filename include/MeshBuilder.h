@@ -18,6 +18,7 @@ private:
 public:
 	MeshBuilder(Mesh_DCEL* m);
 	~MeshBuilder();
+	
 	bool build(std::string path);
 	void clone();
 };
