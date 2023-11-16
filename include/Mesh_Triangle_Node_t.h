@@ -2,7 +2,6 @@
 
 #include "Triangle.h"
 
-
 class Mesh_Triangle_Node_t
 {
 private:

@@ -1,13 +1,14 @@
 #include "HalfEdge.h"
 #include "Triangle.h"
 #include "Vertex.h"
+#include "HalfEdgeNode.h"
 
 HalfEdge::HalfEdge(int idx, Vertex* start) :
 	MeshData(idx)
 {
-
 	origin = start;
 	face = nullptr;
+	node = nullptr;
 	next_edge = previous_edge = twin_edge = nullptr;
 }
 
@@ -36,9 +37,47 @@ HalfEdge* HalfEdge::get_twin_edge() const
 	return this->twin_edge;
 }
 
+HalfEdgeNode *HalfEdge::get_node()
+{
+    return node;
+}
+
 Vertex* HalfEdge::get_origin() const
 {
 	return this->origin;
+}
+
+float HalfEdge::get_zmin()
+{
+	if(twin_edge->get_origin()->get_point().get_z() < origin->get_point().get_z())
+    	return twin_edge->get_origin()->get_point().get_z();
+
+	return origin->get_point().get_z();
+}
+
+float HalfEdge::get_zmax()
+{
+    if(twin_edge->get_origin()->get_point().get_z() < origin->get_point().get_z())
+	{
+		return twin_edge->get_origin()->get_point().get_z();
+	}
+    	
+	return origin->get_point().get_z();
+}
+
+float HalfEdge::get_origin_z()
+{
+    return origin->get_point().get_z();
+}
+
+float HalfEdge::get_destiny_z()
+{
+    return twin_edge->get_origin()->get_point().get_z();
+}
+
+void HalfEdge::set_node(HalfEdgeNode* n)
+{
+	node = n;
 }
 
 void HalfEdge::set_face(Triangle* face)

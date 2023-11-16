@@ -7,8 +7,8 @@
 class Point3D;
 
 enum ORIENTATION {
-	CCW,
-	CW
+	CCW = 0,
+	CW = 1
 };
 
 class SolidContour
