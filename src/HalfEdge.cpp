@@ -57,10 +57,8 @@ float HalfEdge::get_zmin()
 
 float HalfEdge::get_zmax()
 {
-    if(twin_edge->get_origin()->get_point().get_z() < origin->get_point().get_z())
-	{
+    if(twin_edge->get_origin()->get_point().get_z() > origin->get_point().get_z())
 		return twin_edge->get_origin()->get_point().get_z();
-	}
     	
 	return origin->get_point().get_z();
 }
@@ -106,4 +104,14 @@ void HalfEdge::set_twin_edge(HalfEdge* edge)
 void HalfEdge::set_origin(Vertex* o)
 {
 	origin = o;
+}
+
+bool HalfEdge::is_upward_oriented()
+{
+    return (origin->get_point().get_z() < twin_edge->get_origin_z());
+}
+
+void HalfEdge::print(float z)
+{
+	std::cout << "(z_o ="<< this->get_origin_z() << ", z_d =  " << this->get_destiny_z() << ") -> plane z = " << z << std::endl;
 }

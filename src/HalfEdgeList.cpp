@@ -92,6 +92,22 @@ HalfEdgeNode *HalfEdgeList::remove(HalfEdgeNode *node)
   	}	
 }
 
+void HalfEdgeList::remove_halfedge(HalfEdge *h)
+{
+	HalfEdgeNode* node = head;
+
+	while(node != NULL)
+	{ 
+		if (node->get_h() == h)
+		{
+			remove(node);
+			return;
+		}
+		
+		node = node->get_next();
+	}
+}
+
 int HalfEdgeList::size()
 {
 	return list_size;

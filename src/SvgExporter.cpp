@@ -40,9 +40,9 @@ void SvgExporter::fill(char filename[], const std::vector<std::vector<Point3D>> 
     glm::vec3 axis = glm::axis(quaternion);
     glm::mat4 View = glm::rotate(glm::mat4(1.0), angle, axis);
 
-    //float zoom = 0.6f; /*01.liver*/
+    float zoom = 0.6f; /*01.liver*/
     //float zoom = 0.2f; /*02.femur*/
-    float zoom = 0.6f;  /*04.demon*/
+    //float zoom = 0.1f;  /*04.demon*/
     glm::mat4 Projection = glm::perspective (zoom, 4.0f / 3.0f, 0.1f, 100.f);
     int shift_x = +400;
     int shift_y = +400;
@@ -59,26 +59,42 @@ void SvgExporter::fill(char filename[], const std::vector<std::vector<Point3D>> 
     int npolygons = polygons.size();
     for (int i = 0; i < npolygons; i++) 
     {
-    for (size_t index = 0; index < polygons[i].size(); index++) 
-    {
-    Point3D p0 = polygons[i].at(index);
-    if (index < (polygons[i].size() - 1)) 
-    {
-        Point3D p1 = polygons[i].at(index + 1);
-        p0.transform(MVP);
-        p1.transform(MVP);
-        if (orientation.at(i)) 
+        for (size_t index = 0; index < polygons[i].size(); index++) 
         {
-        fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"1\" stroke=\"rgb(255,0,0)\"/>\n",
-                p0.get_x() + shift_x, p0.get_y() + shift_y, p1.get_x() + shift_x,p1.get_y() + shift_y);
+            Point3D p0 = polygons[i].at(index);
+            if (index < (polygons[i].size() - 1)) 
+            {
+                Point3D p1 = polygons[i].at(index + 1);
+                p0.transform(MVP);
+                p1.transform(MVP);
+                if (orientation.at(i)) 
+                {
+                    fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"1\" stroke=\"rgb(255,0,0)\"/>\n",
+                            p0.get_x() + shift_x, p0.get_y() + shift_y, p1.get_x() + shift_x,p1.get_y() + shift_y);
+                }
+                else 
+                {
+                    fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"1\" stroke=\"rgb(0,0,0)\"/>\n",
+                            p0.get_x() + shift_x, p0.get_y() + shift_y, p1.get_x() + shift_x,p1.get_y() + shift_y);
+                }
+            }
+            else
+            {
+                Point3D p1 = polygons[i].at(0);
+                p0.transform(MVP);
+                p1.transform(MVP);
+                if (orientation.at(i)) 
+                {
+                    fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"1\" stroke=\"rgb(255,0,0)\"/>\n",
+                            p0.get_x() + shift_x, p0.get_y() + shift_y, p1.get_x() + shift_x,p1.get_y() + shift_y);
+                }
+                else 
+                {
+                    fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"1\" stroke=\"rgb(0,0,0)\"/>\n",
+                            p0.get_x() + shift_x, p0.get_y() + shift_y, p1.get_x() + shift_x,p1.get_y() + shift_y);
+                }
+            }
         }
-        else 
-        {
-        fprintf (file, "   <line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke-width=\"1\" stroke=\"rgb(0,0,0)\"/>\n",
-                p0.get_x() + shift_x, p0.get_y() + shift_y, p1.get_x() + shift_x,p1.get_y() + shift_y);
-        }
-    }
-    }
     }
     fprintf (file,"</svg>\n");
     fclose(file);

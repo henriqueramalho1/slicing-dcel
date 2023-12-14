@@ -21,6 +21,7 @@ public:
 	void insert (HalfEdge *h);
 	void join (HalfEdgeList *L2);
 	HalfEdgeNode* remove (HalfEdgeNode *node);
+	void remove_halfedge(HalfEdge* h);
 	int size();
     bool is_empty();
 };

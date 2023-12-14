@@ -24,14 +24,7 @@ std::vector<SolidSlice> IncrementalSlicer::slice_mesh(Mesh_DCEL& mesh, float lay
 
 	HalfEdgeList** L = build_edges_buckets(planes, h, delta);
 
-	// for(int i = 0; i < planes.size(); i++)
-	// {
-	// 	std::cout << "Bucket "<< i << "size = " << L[i]->size() << std::endl;
-	// }
-
 	HalfEdgeList A;
-
-	int analyzing_layer = 117;
 
 	std::vector<SolidSlice> slice_list;
 
@@ -40,44 +33,21 @@ std::vector<SolidSlice> IncrementalSlicer::slice_mesh(Mesh_DCEL& mesh, float lay
 		SolidSlice slice;
 		HalfEdgeList B;
 		A.join(L[p]);
-
-		// if(p == analyzing_layer)
-		// {
-		// 	std::cout << "Iteracao " << p << " A com tamanho "<< A.size() << std::endl;
-		// }
 	
 		while (!A.is_empty())
 		{
 			HalfEdgeNode* halfedge_node = A.get_head();
-
-			bool extracted = false;
 
 			if (halfedge_node->get_h()->get_destiny_z() < planes[p])
 				A.remove(halfedge_node);
 
 			else
 			{
-				// if (p == analyzing_layer)
-				// {
-				// 	extracted = true;
-				// 	std::cout << "Comecando a extrair e tamanho de A = " << A.size() << std::endl;
-				// }
-				std::cout << "Extracting from p " << p << std::endl;
+				std::cout << "[INFO] exctracting contour from plane " << p << " z = " << planes[p] << std::endl; 
 				SolidContour contour = extract_contour(halfedge_node->get_h(), &A, &B, planes[p]);
 				slice.add_contour(contour);
 			}
-
-			// if(p == analyzing_layer && extracted)
-			// {
-			// 	std::cout << "A size = " << A.size() << std::endl;
-			// 	std::cout << "B size = " << B.size() << std::endl;
-			// }
 		}
-		
-		// std::cout << "Slice["<< p <<"] size = " << slice.contour_number() << std::endl;
-
-		// if(p == analyzing_layer)
-		// 	exit(2);
 
 		A = B;
 		slice_list.push_back(slice);
@@ -160,6 +130,74 @@ Mesh_Triangle_List_t** IncrementalSlicer::build_buckets(std::vector<float>& plan
 	return L;
 }
 
+HalfEdgeList **IncrementalSlicer::build_edges_buckets_by_triangles(std::vector<float> &planes, std::vector<Triangle> &faces, float delta)
+{
+     size_t k = planes.size();
+	HalfEdgeList** L = (HalfEdgeList**)malloc((k + 1) * sizeof(HalfEdgeList*));
+
+	for (size_t p = 0; p <= k; p++) {
+		L[p] = new HalfEdgeList;
+	}
+
+	size_t n = faces.size(); /* Number of halfedges. */
+
+	if (delta > 0.0) {
+		for (size_t i = 0; i < n; ++i) {
+
+			HalfEdge* h = faces[i].get_boundary();
+			HalfEdge* h_init = h;
+
+			do
+			{
+				if(!h->is_upward_oriented())
+				{
+					int p;
+					if (h->get_zmin() < planes[0]) {
+						p = 0;
+					}
+					else if (h->get_zmin() > planes[k-1]) {
+						p = k;
+					}
+					else {
+						p = floor((h->get_zmin() - planes[0])/delta) + 1;
+					}
+					L[p]->insert(h);
+				}
+
+				h = h->get_next_edge();
+
+			} while(h !=  h_init);
+		}
+	}
+	else {
+		for (size_t i = 0; i < n; ++i) {
+			HalfEdge* h = faces[i].get_boundary();
+			//Binary search
+			/* Assumes that {planes} is a list of {k} strictly increasing {Z} coordinates.
+			Returns an integer {p} such that {planes[p-1] < zMin < planes[p]}. As special cases,
+			if {zMin < planes[0]} returns 0; if {zMin > planes[k-1]} returns {k}. */
+			int p;
+			if (h->get_zmin() >= planes[k - 1]) { p = k; }
+			int l = -1; /* Inferior Z index. */
+			int r = k;  /* Superior Z index. */
+			while (r - l > 1) {
+				/* At this point, {zMin} is between {P[l]} and {P[r]}. */
+				int m = (l + r) / 2;
+				if (h->get_zmin() >= planes[m]) {
+					l = m;
+				}
+				else {
+					r = m;
+				}
+			}
+			p = r;
+			// end Binary search
+			L[p]->insert(h);
+		}
+	}
+	return L;
+}
+
 HalfEdgeList **IncrementalSlicer::build_edges_buckets(std::vector<float> &planes, std::vector<HalfEdge> &halfedges, float delta)
 {
     size_t k = planes.size();
@@ -174,6 +212,10 @@ HalfEdgeList **IncrementalSlicer::build_edges_buckets(std::vector<float> &planes
 	if (delta > 0.0) {
 		for (size_t i = 0; i < n; ++i) {
 			HalfEdge* h = &halfedges[i];
+
+			if(!h->is_upward_oriented())
+				continue;
+
 			int p;
 			if (h->get_zmin() < planes[0]) {
 				p = 0;
@@ -220,28 +262,44 @@ SolidContour IncrementalSlicer::extract_contour(HalfEdge *h, HalfEdgeList *A, Ha
 {
 	HalfEdge* init_h = h;
 	SolidContour contour;
-	//std::cout << "Initiating contour from z = " << z << std::endl;
 
     do
 	{
 		h = h->get_twin_edge()->get_next_edge();
 		while(h->get_destiny_z() < z)
+		{
 			h = h->get_next_edge();
-
+		}
+			
 		Point3D p = intersection(h, z);
 		contour.add_point(p);
 		intersections++;
 
-		if(A->size() == 0)
-		{
-			std::cout << "A size == 0" << std::endl;
-			exit(2);
-		}
-
 		A->remove(h->get_node());
 		B->insert(h);
 
-	} while (h != init_h && h->get_twin_edge() != init_h && h->get_next_edge() != init_h && h->get_previous_edge() != init_h);
+		if(h == init_h)
+			std::cout << "[INFO] Closing contour due to h == init_h" << std::endl;
+
+		if(h->get_next_edge() == init_h)
+		{
+			std::cout << "[ERROR] h->next ("<< h->get_origin_z() << "," << h->get_twin_edge()->get_origin_z() << ") == init_h ("<< init_h->get_origin_z() << "," << init_h->get_twin_edge()->get_origin_z() << ")" << std::endl;
+			exit(0);
+		}
+
+		if(h->get_previous_edge() == init_h)
+		{
+			std::cout << "[ERROR] h->prev ("<< h->get_origin_z() << "," << h->get_twin_edge()->get_origin_z() << ") == init_h ("<< init_h->get_origin_z() << "," << init_h->get_twin_edge()->get_origin_z() << ")" << std::endl;
+			exit(0);
+		}
+
+		if(h->get_twin_edge() == init_h)
+		{
+			std::cout << "[ERROR] h->twin ("<< h->get_origin_z() << "," << h->get_twin_edge()->get_origin_z() << ") == init_h ("<< init_h->get_origin_z() << "," << init_h->get_twin_edge()->get_origin_z() << ")" << std::endl;
+			exit(0);
+		}
+
+	} while (h != init_h);
 	
 	contour.set_orientation(orient(contour));
 	return contour;

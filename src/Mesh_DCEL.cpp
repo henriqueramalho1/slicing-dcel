@@ -18,9 +18,13 @@ void Mesh_DCEL::round_vertices()
 
 	for(size_t i = 0; i < vertices.size(); i++)
 	{
-		vertices[i].get_point().set_x(xround(vertices[i].get_point().get_x(), eps, 2, 0));
-		vertices[i].get_point().set_y(xround(vertices[i].get_point().get_y(), eps, 2, 0));
-		vertices[i].get_point().set_z(xround(vertices[i].get_point().get_z(), eps, 2, 0));
+		Point3D p = vertices[i].get_point();
+
+		p.set_x(xround(p.get_x(), eps, 2, 0));
+		p.set_y(xround(p.get_y(), eps, 2, 0));
+		p.set_z(xround(p.get_z(), eps, 2, 0));
+
+		vertices[i].set_point(p);
 	}
 }
 

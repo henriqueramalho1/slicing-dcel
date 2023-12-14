@@ -14,6 +14,7 @@ public:
 
 	std::vector <float>* get_planes() { return &this->planes; }
 	Mesh_Triangle_List_t** build_buckets(std::vector<float>& planes, std::vector<Triangle>& m, float delta);
+	HalfEdgeList** build_edges_buckets_by_triangles(std::vector<float>& planes, std::vector<Triangle>& faces, float delta);
 	HalfEdgeList** build_edges_buckets(std::vector<float>& planes, std::vector<HalfEdge>& halfedges, float delta);
 	SolidContour extract_contour(HalfEdge *h, HalfEdgeList* A, HalfEdgeList* B, float z);
 	std::vector<SolidSlice> slice_mesh(Mesh_DCEL& mesh, float layer_thickness);

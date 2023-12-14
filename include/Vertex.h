@@ -13,6 +13,7 @@ public:
 	
 	Vertex(int idx, Point3D p);
 	~Vertex();
+	void set_point(Point3D p);
 	Point3D get_point();
 };
 

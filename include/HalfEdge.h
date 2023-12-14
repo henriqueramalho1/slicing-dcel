@@ -37,4 +37,6 @@ public:
 	void set_previous_edge(HalfEdge* edge);
 	void set_twin_edge(HalfEdge* edge);
 	void set_origin(Vertex* o);
+	bool is_upward_oriented();
+	void print(float z);
 };
