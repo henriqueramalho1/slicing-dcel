@@ -50,7 +50,8 @@ std::vector<SolidSlice> IncrementalSlicer::slice_mesh(Mesh_DCEL& mesh, float lay
 		}
 
 		A = B;
-		slice_list.push_back(slice);
+		if(slice.contour_number() > 0)
+			slice_list.push_back(slice);
 
 	}
 
