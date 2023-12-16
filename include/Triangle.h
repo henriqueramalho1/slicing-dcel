@@ -20,9 +20,6 @@ public:
 	float get_zmax () const;
 	void set_boundary(HalfEdge* b);
 	void set_z_min_max();
-	void reset() { state = false; };
-	void set() { state = true; };
-	bool get_state() { return state; };
 
 private:
 
@@ -30,6 +27,5 @@ private:
 	HalfEdge *boundary;
 	float z_min;
 	float z_max;
-	bool state;
 
 };

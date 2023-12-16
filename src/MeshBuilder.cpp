@@ -16,7 +16,7 @@ MeshBuilder::~MeshBuilder()
 
 bool MeshBuilder::build(std::string path)
 {
-	if (CGAL::Polygon_mesh_processing::IO::read_polygon_mesh(path, mesh))
+	if (CGAL::IO::read_polygon_mesh(path, mesh))
 	{
 		// std::cout << "Opened successfully" << std::endl;
 		// std::cout << "Edges Size: " << mesh.halfedges().size() << std::endl;

@@ -1,7 +1,6 @@
 #include "Triangle.h"
 
 Triangle::Triangle(HalfEdge* boundary, Vertex v1, Vertex v2, Vertex v3):
-	state(false),
 	boundary(boundary),
 	z_min(std::numeric_limits<float>::max()),
 	z_max(-std::numeric_limits<float>::max())
