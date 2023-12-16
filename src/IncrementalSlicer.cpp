@@ -43,7 +43,7 @@ std::vector<SolidSlice> IncrementalSlicer::slice_mesh(Mesh_DCEL& mesh, float lay
 
 			else
 			{
-				std::cout << "[INFO] exctracting contour from plane " << p << " z = " << planes[p] << std::endl; 
+				//std::cout << "[INFO] exctracting contour from plane " << p << " z = " << planes[p] << std::endl; 
 				SolidContour contour = extract_contour(halfedge_node->get_h(), &A, &B, planes[p]);
 				slice.add_contour(contour);
 			}
@@ -278,9 +278,6 @@ SolidContour IncrementalSlicer::extract_contour(HalfEdge *h, HalfEdgeList *A, Ha
 		A->remove(h->get_node());
 		B->insert(h);
 
-		if(h == init_h)
-			std::cout << "[INFO] Closing contour due to h == init_h" << std::endl;
-
 		if(h->get_next_edge() == init_h)
 		{
 			std::cout << "[ERROR] h->next ("<< h->get_origin_z() << "," << h->get_twin_edge()->get_origin_z() << ") == init_h ("<< init_h->get_origin_z() << "," << init_h->get_twin_edge()->get_origin_z() << ")" << std::endl;
@@ -301,7 +298,7 @@ SolidContour IncrementalSlicer::extract_contour(HalfEdge *h, HalfEdgeList *A, Ha
 
 	} while (h != init_h);
 	
-	contour.set_orientation(orient(contour));
+	//contour.set_orientation(orient(contour));
 	return contour;
 }
 
@@ -347,15 +344,11 @@ float IncrementalSlicer::xround (float x, double eps, int mod, int rem) {
 
 ORIENTATION IncrementalSlicer::orient(SolidContour contour)
 {
-	// Calcula o produto vetorial dos vetores que ligam os pontos
 	int orientation = 0;
 	for (int i = 0; i < contour.get_size(); i++) 
 	{
 		orientation += contour.get_point((i + 1) % contour.get_size()).get_x() * contour.get_point((i + 2) % contour.get_size()).get_y() - contour.get_point((i + 1) % contour.get_size()).get_y() * contour.get_point((i + 2) % contour.get_size()).get_x();
 	}
-
- 	// Se o produto vetorial for positivo, a lista está orientada CW
-  	// Se o produto vetorial for negativo, a lista está orientada CCW
 
 	if (orientation < 0)
 		return ORIENTATION::CW;
